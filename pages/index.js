@@ -15,7 +15,6 @@ export default function Home({ initialTodos, user }) {
   useEffect(() => {
     setTodos(initialTodos);
   }, []);
-  console.log(user);
   return (
     <div>
       <Head>
@@ -30,6 +29,7 @@ export default function Home({ initialTodos, user }) {
             <ul>{todos && todos.map((todo) => <Todo key={todo.id} todo={todo} />)}</ul>
           </>
         )}
+        {!user && <p>You should login to see your todos.</p>}
       </main>
     </div>
   );
@@ -37,8 +37,15 @@ export default function Home({ initialTodos, user }) {
 
 export async function getServerSideProps(context) {
   const session = await auth0.getSession(context.req);
+  let todos = [];
   try {
-    const todos = await table.select({}).firstPage();
+    if (session?.user) {
+      todos = await table
+        .select({
+          filterByFormula: `userId = '${session.user.sub}'`,
+        })
+        .firstPage();
+    }
     return {
       props: {
         initialTodos: minifyRecords(todos),
