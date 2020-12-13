@@ -56,7 +56,7 @@ export async function getServerSideProps(context) {
     console.log(error);
     return {
       props: {
-        error: 'something went wrong',
+        error: 'something went wronggg',
       },
     };
   }
